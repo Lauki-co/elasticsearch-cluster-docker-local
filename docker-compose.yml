@@ -1,1 +1,74 @@
-# Placeholder for docker-compose.yml
+# Placeholder for docker-compose.ymlversion: '3.8'
+
+services:
+  esnode1:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.0
+    container_name: esnode1
+    environment:
+      - node.name=esnode1
+      - cluster.name=my-local-cluster
+      - discovery.seed_hosts=esnode2
+      - cluster.initial_master_nodes=esnode1,esnode2
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=changeme
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    volumes:
+      - ./esnode1/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./certs:/usr/share/elasticsearch/config/certs
+      - ./esnode1/data:/usr/share/elasticsearch/data
+      - ./esnode1/logs:/usr/share/elasticsearch/logs
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    mem_limit: 1g
+    networks: [ esnet ]
+
+  esnode2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.0
+    container_name: esnode2
+    environment:
+      - node.name=esnode2
+      - cluster.name=my-local-cluster
+      - discovery.seed_hosts=esnode1
+      - cluster.initial_master_nodes=esnode1,esnode2
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=changeme
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    volumes:
+      - ./esnode2/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./certs:/usr/share/elasticsearch/config/certs
+      - ./esnode2/data:/usr/share/elasticsearch/data
+      - ./esnode2/logs:/usr/share/elasticsearch/logs
+    ports:
+      - "9201:9200"
+      - "9301:9300"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    mem_limit: 1g
+    networks: [ esnet ]
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.13.0
+    container_name: kibana
+    environment:
+      - SERVER_NAME=kibana
+      - ELASTICSEARCH_HOSTS=https://esnode1:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=changeme
+      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=/usr/share/kibana/config/certs/ca.crt
+    ports:
+      - "5601:5601"
+    volumes:
+      - ./certs/ca:/usr/share/kibana/config/certs
+    depends_on: [ esnode1 ]
+    networks: [ esnet ]
+
+networks:
+  esnet:
+    driver: bridge
