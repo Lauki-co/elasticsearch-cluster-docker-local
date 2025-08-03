@@ -31,15 +31,16 @@
 
 ## 🗂 Folder Structure
 
-elasticsearch-cluster/ <br>
-├── certs/<br>
-│   ├── ca/<br>
-│   ├── node1/<br>
-│   └── node2/<br>
-├── esnode1/<br>
-│   └── elasticsearch.yml<br>
-├── esnode2/<br>
-│   └── elasticsearch.yml<br>
-├── docker-compose.yml<br>
-└── README.md<br>
-
+```
+elasticsearch-cluster/
+├── certs/
+│   ├── ca/
+│   ├── node1/
+│   └── node2/
+├── esnode1/
+│   └── elasticsearch.yml
+├── esnode2/
+│   └── elasticsearch.yml
+├── docker-compose.yml
+└── README.md
+```
